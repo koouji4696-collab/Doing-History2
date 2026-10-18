@@ -8,4 +8,4 @@
 var API = 'https://script.google.com/macros/s/AKfycbwgCoawanHiGMbG13NW5PQTG-XbtUtOl_i2lOb2QbhwyP4GaXZqNguu3ECY3502nOk/exec';
 
 /* 生徒用ページのURL（教員卓のQRコードに使います） */
-var STUDENT_URL = 'https://koouji4696-collab.github.io/baton/';
+var STUDENT_URL = 'https://koouji4696-collab.github.io/Doing-History2/';
