@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>歴史するアプリ Doing History 2 〜問いのバトン〜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1524; --ink2:#16203A; --ink3:#22304F; --line:#33456B;
+    --paper:#F0EADC; --dim:#96A2BC;
+    --shu:#D8443C; --shuSoft:#EFA39C;
+    --asagi:#6FC2C6; --asagiSoft:#A9DEE0;
+    --gold:#C9A227; --goldSoft:#E4CE86;
+    --serif:"Cormorant Garamond","Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+    --sans:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--ink);color:var(--paper)}
+  body{font-family:var(--sans);line-height:1.75;padding:0 18px 70px;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(201,162,39,.045) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(90deg, rgba(201,162,39,.045) 0 1px, transparent 1px 72px),
+      radial-gradient(120% 80% at 50% 0%, rgba(111,194,198,.06), transparent 60%);}
+  .wrap{position:relative;z-index:1;max-width:760px;margin:0 auto}
+
+  .masthead{padding:26px 0 14px}
+  .latin{font-family:var(--serif);font-weight:300;letter-spacing:.3em;
+    font-size:13px;color:var(--gold);margin:0 0 6px}
+  .masthead h1{font-family:var(--serif);font-weight:600;font-size:27px;
+    letter-spacing:.14em;margin:0;line-height:1.3}
+  .masthead h1 .sub{display:block;font-size:21px;letter-spacing:.18em;color:var(--goldSoft);margin-top:4px}
+  .rule{height:1px;background:linear-gradient(90deg,var(--gold),rgba(201,162,39,.15) 55%,transparent);margin:12px 0 8px}
+  .byline{font-family:var(--serif);font-size:13.5px;color:var(--dim);letter-spacing:.08em;margin:0}
+
+  .mincho{font-family:var(--serif)}
+  .panel{background:rgba(22,32,58,.88);border:1px solid var(--ink3);
+    border-radius:3px;padding:18px;margin-bottom:16px}
+  .panel.shu{border-color:rgba(216,68,60,.55);box-shadow:inset 3px 0 0 var(--shu)}
+  .panel.asagi{border-color:rgba(111,194,198,.45);box-shadow:inset 3px 0 0 var(--asagi)}
+  .panel.gold{border-color:rgba(201,162,39,.5);box-shadow:inset 3px 0 0 var(--gold)}
+  .label{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+  .tag{display:inline-block;padding:3px 10px;font-size:11px;letter-spacing:.14em;
+    border:1px solid var(--gold);color:var(--goldSoft);border-radius:2px}
+  .q{font-family:var(--serif);font-size:27px;line-height:1.75;letter-spacing:.03em;margin:0}
+
+  input,textarea,select{width:100%;background:rgba(10,16,28,.7);color:var(--paper);
+    border:1px solid var(--line);border-radius:3px;padding:12px;font-size:17px;
+    font-family:var(--serif);line-height:1.9}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold)}
+  select{font-size:16px}
+  button{background:var(--shu);color:#12131A;border:0;border-radius:3px;padding:12px 20px;
+    font-size:15px;font-weight:600;letter-spacing:.06em;cursor:pointer;font-family:var(--sans)}
+  button.ghost{background:transparent;color:var(--dim);border:1px solid var(--line)}
+  button:disabled{background:var(--ink3);color:var(--dim);cursor:not-allowed}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .count{font-size:12px;color:var(--dim);margin-top:6px;letter-spacing:.1em}
+  .note{font-size:13.5px;color:var(--dim)}
+  .err{border:1px solid rgba(216,68,60,.6);background:rgba(216,68,60,.12);
+    color:var(--shuSoft);padding:10px 14px;border-radius:3px;margin-bottom:14px;font-size:14px}
+  .foot{color:var(--line);font-size:12px;margin-top:34px;letter-spacing:.1em;
+    display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  a{color:var(--dim)}
+  .cls{border:1px solid var(--line);background:transparent;color:var(--paper);
+    font-family:var(--serif);font-size:20px;letter-spacing:.14em;padding:14px 26px}
+  .cls.on{background:rgba(201,162,39,.16);border-color:var(--gold);color:var(--goldSoft)}
+
+  .ans{background:var(--ink2);border:1px solid var(--ink3);border-radius:3px;
+    padding:13px 15px;margin-bottom:9px}
+  .ans .code{font-family:var(--serif);font-size:15px;color:var(--gold);letter-spacing:.12em}
+  .ans .txt{font-family:var(--serif);font-size:17px;line-height:1.9;margin:5px 0 0}
+  .ans.me{box-shadow:inset 3px 0 0 var(--line)}
+  .ans.win{border-color:rgba(201,162,39,.6);box-shadow:inset 3px 0 0 var(--gold)}
+  .ans.sharp{border-color:rgba(111,194,198,.5);box-shadow:inset 3px 0 0 var(--asagi)}
+  .ans .v{font-family:var(--serif);font-size:14px;color:var(--goldSoft);letter-spacing:.1em}
+  .votebtn{background:transparent;border:1px solid var(--gold);color:var(--goldSoft);
+    font-size:13px;padding:7px 15px;font-weight:400}
+
+  .crown{font-family:var(--serif);font-size:30px;line-height:1.5;color:var(--goldSoft);margin:0}
+  .nq{font-family:var(--serif);font-size:20px;line-height:1.85;margin:6px 0 0}
+  .pick{border:1px solid var(--line);background:transparent;color:var(--paper);
+    text-align:left;padding:14px 16px;width:100%;font-weight:400;margin-top:10px}
+  .pick:hover{border-color:var(--gold)}
+
+  /* これまでのバトン */
+  .hist{border-left:1px solid var(--line);margin:4px 0 0;padding:0 0 0 18px}
+  .hitem{position:relative;padding:12px 0}
+  .hitem::before{content:"";position:absolute;left:-23px;top:20px;
+    width:9px;height:9px;border-radius:50%;background:var(--gold);
+    border:2px solid var(--ink)}
+  .hitem .rd{font-family:var(--serif);font-size:12.5px;color:var(--gold);letter-spacing:.14em}
+  .hitem .hq{font-family:var(--serif);font-size:18px;line-height:1.75;margin:3px 0 0}
+  .hitem .hw{font-size:12.5px;color:var(--dim);margin:5px 0 0}
+
+  /* 歴史からの一言 */
+  .voice{background:rgba(240,234,220,.045);border:0;border-left:2px solid var(--gold);
+    border-radius:0;padding:20px 22px;margin-bottom:16px;
+    box-shadow:inset 6px 0 0 rgba(201,162,39,.12)}
+  .voice .vq{font-family:var(--serif);font-size:24px;line-height:1.85;
+    letter-spacing:.03em;margin:0;color:var(--paper)}
+  .voice .vq::before{content:"「"}
+  .voice .vq::after{content:"」"}
+  .voice .vwho{font-family:var(--serif);font-size:17px;color:var(--goldSoft);
+    letter-spacing:.1em;margin:14px 0 0;text-align:right}
+  .voice .vwhen{font-size:12px;color:var(--dim);letter-spacing:.08em;
+    margin:3px 0 0;text-align:right}
+  .voice .vwhy{font-size:13.5px;color:var(--dim);line-height:1.85;
+    margin:16px 0 0;padding-top:14px;border-top:1px solid rgba(51,69,107,.6)}
+
+  #cdwrap{position:sticky;top:0;z-index:5;margin:0 -18px 16px;padding:10px 18px;
+    background:rgba(216,68,60,.16);border-bottom:1px solid rgba(216,68,60,.55);
+    display:flex;align-items:center;gap:14px}
+  #cd{font-family:var(--serif);font-size:34px;letter-spacing:.06em;color:var(--shuSoft);
+    line-height:1;min-width:86px}
+  #cdwrap.over{background:rgba(201,162,39,.16);border-bottom-color:rgba(201,162,39,.55)}
+  #cdwrap.over #cd{color:var(--goldSoft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <p class="latin">Doing History II</p>
+    <h1 class="mincho">歴史するアプリ<span class="sub">〜問いのバトン〜</span></h1>
+    <div class="rule"></div>
+    <p class="byline">世界史探究　by 八幡</p>
+  </div>
+
+  <div id="err" class="err" style="display:none"></div>
+  <div id="app"></div>
+
+  <p class="foot">
+    <span id="who"></span>
+    <a href="#" id="reset">選び直す</a>
+    <a href="#" id="tlink">先生用</a>
+  </p>
+</div>
+
+<script src="config.js"></script>
+<script>
+let me=null, S=null, mine=null, answers=[], counts={}, prev=null;
+let allRoster=[], classes=[], pickCls='', sending=false;
+let dAns='', lastSig='', cdBase=null, history=null, histOpen=false;
+
+const norm = s => String(s==null?'':s)
+  .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[\s　]/g,'');
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function cdLeft(){ return cdBase ? Math.round(cdBase.sec - (Date.now()-cdBase.at)/1000) : null; }
+function cdActive(){
+  const l = cdLeft();
+  return l!==null && l>-20 && S && S.phase===1 && !(mine&&mine.answer);
+}
+
+function sig(){
+  return JSON.stringify([S&&S.id, S&&S.phase, S&&S.round, S&&S.question,
+    S&&S.winnerUid, S&&S.sharpUid, S&&S.chosenNext, S&&S.next?S.next.length:0,
+    mine&&mine.answer, mine&&mine.votedFor, cdActive(), histOpen,
+    history?history.length:-1, prev?prev.round:0,
+    S&&S.quote?S.quote.who:'',
+    S&&S.phase>=2 ? answers.map(a=>a.uid+(a.votes||0)).join(',') : answers.length]);
+}
+
+async function api(p){
+  const res = await fetch(API,{method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(Object.assign({cls: me ? me.cls : pickCls}, p))});
+  const t = await res.text();
+  try{ return JSON.parse(t); }
+  catch(e){ throw new Error('サーバーの応答が読めません（HTTP '+res.status+'）\n'+t.slice(0,300)); }
+}
+function err(m){
+  const e=document.getElementById('err');
+  if(!m){ e.style.display='none'; return; }
+  e.textContent=m; e.style.display='block';
+  setTimeout(()=>{e.style.display='none';},8000);
+}
+function fatal(e){
+  const msg=(e&&e.message)?e.message:String(e);
+  document.getElementById('app').innerHTML =
+    `<div class="panel shu"><p class="label">つながりませんでした</p>
+     <pre style="white-space:pre-wrap;font-size:12px;color:var(--shuSoft);margin:0 0 14px">${esc(msg)}</pre>
+     <button id="again">もう一度試す</button></div>`;
+  const b=document.getElementById('again'); if(b) b.onclick=()=>location.reload();
+}
+
+/* ---- 起動 ---- */
+(async function(){
+  try{
+    try{ me = JSON.parse(localStorage.getItem('baton:me')||'null'); }catch(e){}
+    document.getElementById('reset').onclick = e=>{
+      e.preventDefault(); localStorage.removeItem('baton:me'); location.reload();
+    };
+    document.getElementById('tlink').onclick = e=>{
+      e.preventDefault();
+      location.href = (typeof TEACHER_URL==='string' && TEACHER_URL) ? TEACHER_URL : 'kyoin.html';
+    };
+    if(typeof API!=='string' || API.indexOf('http')!==0)
+      throw new Error('config.js の API が設定されていません。');
+    const r = await api({action:'roster'});
+    if(!r || r.ok===false) throw new Error(r&&r.error ? r.error : '名簿を取得できませんでした');
+    allRoster = r.roster||[];
+    classes = Array.from(new Set(allRoster.map(x=>String(x.cls)).filter(Boolean)));
+    if(!me){ pickCls = classes[0]||''; renderGate(); return; }
+    document.getElementById('who').textContent = me.cls+'　'+me.name;
+    await tick();
+    setInterval(tick, 4000);
+    setInterval(paintCountdown, 1000);
+  }catch(e){ fatal(e); }
+})();
+
+async function tick(){
+  if(sending) return;
+  let r;
+  try{ r = await api({action:'state', uid:me.uid}); }
+  catch(e){ err('通信できません。電波を確認してください。'); return; }
+  if(!r || !r.ok) return;
+  S=r.session; mine=r.mine; answers=r.answers||[]; counts=r.counts||{}; prev=r.prev||null;
+  cdBase = (S && S.deadlineIn!==null && S.deadlineIn!==undefined) ? {sec:S.deadlineIn, at:Date.now()} : null;
+  if(sig()===lastSig){ paintCountdown(); return; }
+  render();
+}
+
+function paintCountdown(){
+  const w=document.getElementById('cdwrap'); if(!w) return;
+  const l=cdLeft(); if(l===null){ w.remove(); return; }
+  const el=document.getElementById('cd');
+  if(l>0){
+    const m=Math.floor(l/60), s=l%60;
+    el.textContent = m+':'+(s<10?'0':'')+s;
+    w.classList.remove('over');
+    document.getElementById('cdmsg').textContent='まもなく締め切ります。';
+  }else{
+    el.textContent='0:00'; w.classList.add('over');
+    document.getElementById('cdmsg').textContent='時間です。';
+  }
+}
+
+/* ---- 入口 ---- */
+function renderGate(){
+  const app=document.getElementById('app');
+  if(allRoster.length===0){
+    app.innerHTML=`<div class="panel"><p class="note">名簿が読み込めませんでした。先生に伝えてください。</p></div>`;
+    return;
+  }
+  const list = allRoster.filter(x=>norm(x.cls)===norm(pickCls));
+  app.innerHTML=`
+    <div class="panel">
+      <p class="label">Class</p>
+      <div class="row" style="margin-bottom:22px">
+        ${classes.map(c=>`<button class="cls ${norm(c)===norm(pickCls)?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('')}
+      </div>
+      <p class="label">Name</p>
+      <select id="pick"><option value="">— 名簿から自分を選ぶ —</option>
+        ${list.map(x=>`<option value="${esc(x.name)}">${esc(x.no)}　${esc(x.name)}</option>`).join('')}
+      </select>
+      <p class="note" style="margin-top:8px">選んだ内容はこの端末に記録されます。</p>
+      <div class="row" style="margin-top:16px"><button id="go" disabled>始める</button></div>
+    </div>`;
+  document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ pickCls=b.dataset.c; renderGate(); });
+  const sel=document.getElementById('pick'), go=document.getElementById('go');
+  sel.onchange=()=>{ go.disabled=!sel.value; };
+  go.onclick=()=>{
+    me={ uid:Math.random().toString(36).slice(2,10), name:sel.value, cls:pickCls };
+    localStorage.setItem('baton:me', JSON.stringify(me));
+    location.reload();
+  };
+}
+
+/* ---- 描画 ---- */
+function render(){
+  lastSig=sig();
+  const app=document.getElementById('app');
+  if(!S){ app.innerHTML=`<div class="panel"><p class="note">まだ始まっていません。</p></div>` + histBlock(); wire(); return; }
+
+  if(S.phase===0 || !S.question){
+    app.innerHTML=`<div class="panel"><p class="note" style="margin:0">まもなく問いが出ます。</p></div>`
+      + (prev?prevBlock():'') + histBlock();
+    wire(); return;
+  }
+
+  let h = (cdActive()?cdBlock():'') + qBlock();
+  if(S.phase===1) h += (mine&&mine.answer) ? doneBlock() : writeBlock();
+  if(S.phase===2) h += voiceBlock() + voteBlock();
+  if(S.phase===3) h += voiceBlock() + resultBlock();
+  if(S.phase===1 && prev) h += prevBlock();
+  h += histBlock();
+  app.innerHTML=h;
+  wire();
+  paintCountdown();
+}
+
+function cdBlock(){
+  return `<div id="cdwrap"><span id="cd">1:00</span>
+    <span class="note" id="cdmsg" style="flex:1">まもなく締め切ります。</span></div>`;
+}
+
+function qBlock(){
+  return `<div class="panel gold">
+    <div class="row" style="margin-bottom:12px">
+      <span class="tag">第${S.round}回の問い</span>
+      ${S.fromName?`<span class="note">${esc(S.fromName)} から渡されたバトン</span>`:''}
+    </div>
+    <p class="q">${esc(S.question)}</p>
+  </div>`;
+}
+
+function writeBlock(){
+  return `<div class="panel shu">
+    <p class="label">あなたの答え</p>
+    <p class="note" style="margin:0 0 12px">60字。正解はありません。あなたにしか書けないことを書いてください。</p>
+    <textarea id="ans" rows="3" maxlength="60" placeholder="">${esc(dAns)}</textarea>
+    <div class="row" style="justify-content:space-between;margin-top:10px">
+      <span class="count"><span id="ac">${dAns.length}</span> / 60</span>
+      <button id="as" ${dAns.trim()?'':'disabled'}>出す</button>
+    </div>
+  </div>`;
+}
+
+function doneBlock(){
+  return `<div class="panel shu">
+    <p class="label">出しました</p>
+    <p class="mincho" style="font-size:18px;line-height:2;margin:0">${esc(mine.answer)}</p>
+    <div class="rule" style="margin:18px 0 10px"></div>
+    <p class="note" style="margin:0">${counts.answered||0}人が書きました。授業で、名前を伏せて並びます。</p>
+  </div>`;
+}
+
+/* 歴史からの一言 */
+function voiceBlock(){
+  const v = S.quote;
+  if(!v || !v.quote) return '';
+  return `<div class="voice">
+    <p class="label" style="color:var(--gold);margin:0 0 14px">歴史からの一言</p>
+    <p class="vq">${esc(v.quote)}</p>
+    <p class="vwho">${esc(v.who)}</p>
+    <p class="vwhen">${esc(v.when)}${v.source?'　'+esc(v.source):''}</p>
+    ${v.why?`<p class="vwhy">${esc(v.why)}</p>`:''}
+  </div>`;
+}
+
+function voteBlock(){
+  const voted = !!(mine && mine.votedFor);
+  let h = `<div class="panel">
+    <p class="label">一人一票</p>
+    <p class="note" style="margin:0">${voted?'投票しました。開票を待ちましょう。':'いちばん面白いと思った答えに一票。自分には入れられません。'}
+      　${counts.voted||0} / ${counts.answered||0}</p>
+  </div>`;
+  h += answers.map(a=>{
+    const isMe = me && a.uid===me.uid;
+    const chosen = voted && mine.votedFor===a.uid;
+    return `<div class="ans ${isMe?'me':''}">
+      <div class="row" style="justify-content:space-between">
+        <span class="code">${esc(a.code)}${isMe?'　あなた':''}${chosen?'　← 投票しました':''}</span>
+        ${(!voted && !isMe)?`<button class="votebtn" data-vote="${esc(a.uid)}">これに一票</button>`:''}
+      </div>
+      <p class="txt">${esc(a.answer)}</p>
+    </div>`;
+  }).join('');
+  return h;
+}
+
+function resultBlock(){
+  const win = answers.find(a=>a.isWinner);
+  const sharp = answers.find(a=>a.isSharp);
+  let h='';
+
+  if(win){
+    h += `<div class="panel gold">
+      <p class="label" style="color:var(--gold)">第${S.round}回の問いの主</p>
+      <p class="crown">${esc(win.name)}</p>
+      <p class="mincho" style="font-size:19px;line-height:1.9;margin:10px 0 0">${esc(win.answer)}</p>
+      <p class="note" style="margin:12px 0 0">${win.votes}票</p>
+    </div>`;
+  }
+  if(sharp){
+    h += `<div class="panel asagi">
+      <p class="label" style="color:var(--asagi)">票は入らなかったが、鋭い一票</p>
+      <p class="mincho" style="font-size:21px;margin:0;color:var(--asagiSoft)">${esc(sharp.name)}</p>
+      <p class="mincho" style="font-size:18px;line-height:1.9;margin:8px 0 0">${esc(sharp.answer)}</p>
+      ${S.sharpReason?`<p class="note" style="margin:12px 0 0">${esc(S.sharpReason)}</p>`:''}
+    </div>`;
+  }
+  if(mine && mine.answer){
+    h += `<div class="panel">
+      <p class="label">あなたの答え　${mine.votes||0}票</p>
+      <p class="mincho" style="font-size:17px;line-height:1.9;margin:0">${esc(mine.answer)}</p>
+    </div>`;
+  }
+
+  const amWinner = mine && mine.isWinner;
+  if(S.chosenNext){
+    h += `<div class="panel gold">
+      <p class="label" style="color:var(--gold)">次の回へ渡されたバトン</p>
+      <p class="q" style="font-size:22px">${esc(S.chosenNext)}</p>
+      <p class="note" style="margin:14px 0 0">次の回はもう始まっています。画面を更新すると書けます。</p>
+    </div>`;
+  }else if(S.next && S.next.length){
+    h += `<div class="panel ${amWinner?'gold':''}">
+      <p class="label">${amWinner?'次の問いを選んでください':'次の問いの候補'}</p>
+      <p class="note" style="margin:0 0 6px">今日みんなが書いた答えのずれから生まれました。</p>
+      ${S.next.map((n,i)=>`
+        ${amWinner?`<button class="pick" data-pick="${i}">
+            <span class="nq" style="display:block">${esc(n.question)}</span>
+            ${n.why?`<span class="note" style="display:block;margin-top:6px">${esc(n.why)}</span>`:''}
+          </button>`
+        :`<div style="margin-top:16px">
+            <p class="nq">${esc(n.question)}</p>
+            ${n.why?`<p class="note" style="margin:4px 0 0">${esc(n.why)}</p>`:''}
+          </div>`}`).join('')}
+    </div>`;
+  }
+
+  h += `<div class="panel">
+    <p class="label">みんなの答え</p>
+    ${answers.map(a=>`<div class="ans ${a.isWinner?'win':''} ${a.isSharp?'sharp':''}">
+      <div class="row" style="justify-content:space-between">
+        <span class="code">${esc(a.name||a.code)}</span>
+        <span class="v">${a.votes||0}票</span>
+      </div>
+      <p class="txt">${esc(a.answer)}</p>
+    </div>`).join('')}
+  </div>`;
+  return h;
+}
+
+/* 直前の回の結果（新しい回がまだ白紙のあいだだけ出る） */
+function prevBlock(){
+  if(!prev) return '';
+  return `<div class="panel asagi">
+    <p class="label" style="color:var(--asagi)">第${prev.round}回の結果</p>
+    <p class="mincho" style="font-size:18px;line-height:1.8;margin:0 0 14px">${esc(prev.question)}</p>
+    <div class="rule" style="margin:0 0 12px"></div>
+    <p class="note" style="margin:0">問いの主　<span class="mincho" style="font-size:19px;color:var(--goldSoft)">${esc(prev.winnerName)}</span></p>
+    <p class="mincho" style="font-size:17px;line-height:1.9;margin:6px 0 0">${esc(prev.winnerAnswer)}</p>
+    ${prev.sharpName?`<p class="note" style="margin:14px 0 0">鋭い一票　<span style="color:var(--asagiSoft)">${esc(prev.sharpName)}</span>${prev.sharpReason?'　'+esc(prev.sharpReason):''}</p>`:''}
+  </div>`;
+}
+
+/* これまでのバトン */
+function histBlock(){
+  if(!histOpen){
+    return `<div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <span class="label" style="margin:0">これまでのバトン</span>
+        <button class="ghost" id="histOpen">ひらく</button>
+      </div>
+    </div>`;
+  }
+  if(history===null){
+    return `<div class="panel"><p class="note" style="margin:0">読み込んでいます</p></div>`;
+  }
+  if(history.length===0){
+    return `<div class="panel">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <span class="label" style="margin:0">これまでのバトン</span>
+        <button class="ghost" id="histClose">とじる</button>
+      </div>
+      <p class="note" style="margin:0">まだ記録がありません。</p>
+    </div>`;
+  }
+  return `<div class="panel">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <span class="label" style="margin:0">これまでのバトン　${history.length}回</span>
+      <button class="ghost" id="histClose">とじる</button>
+    </div>
+    <div class="hist">
+      ${history.map(x=>`<div class="hitem">
+        <div class="rd">第${x.round}回　${esc(x.date)}</div>
+        <p class="hq">${esc(x.question)}</p>
+        ${x.winnerName?`<p class="hw">問いの主　${esc(x.winnerName)}　「${esc(x.winnerAnswer)}」</p>`:''}
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+async function loadHistory(){
+  try{
+    const r = await api({action:'history'});
+    history = (r && r.ok) ? (r.history||[]) : [];
+  }catch(e){ history=[]; }
+  lastSig=''; render();
+}
+
+/* ---- 配線 ---- */
+function wire(){
+  const $=id=>document.getElementById(id);
+
+  const t=$('ans');
+  if(t){
+    const b=$('as');
+    t.oninput=()=>{ dAns=t.value; $('ac').textContent=dAns.length; b.disabled=!dAns.trim(); };
+    b.onclick=async()=>{
+      sending=true; b.disabled=true;
+      const r=await api({action:'submitAnswer', uid:me.uid, name:me.name, answer:dAns.trim()});
+      sending=false;
+      if(!r.ok) err(r.error); else { dAns=''; lastSig=''; await tick(); }
+    };
+  }
+  document.querySelectorAll('[data-vote]').forEach(b=>b.onclick=async()=>{
+    sending=true;
+    const r=await api({action:'vote', uid:me.uid, target:b.dataset.vote});
+    sending=false;
+    if(!r.ok) err(r.error); else { lastSig=''; await tick(); }
+  });
+  document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=async()=>{
+    const n=(S.next||[])[b.dataset.pick]; if(!n) return;
+    sending=true;
+    const r=await api({action:'pickNext', uid:me.uid, question:n.question});
+    sending=false;
+    if(!r.ok) err(r.error); else { history=null; lastSig=''; await tick(); }
+  });
+  if($('histOpen')) $('histOpen').onclick=()=>{ histOpen=true; history=null; lastSig=''; render(); loadHistory(); };
+  if($('histClose')) $('histClose').onclick=()=>{ histOpen=false; lastSig=''; render(); };
+}
+</script>
+</body>
+</html>
